@@ -43,7 +43,7 @@ public class Main {
             double elevation = Double.parseDouble(point[2]);
             if (isInFeet) elevation /= 3.281;
             double pointTime = Double.parseDouble(point[3]);
-            Instant i = Instant.ofEpochSecond((long) pointTime);
+            Instant i = Instant.ofEpochMilli((long) (pointTime * 1000));
             ZonedDateTime z = ZonedDateTime.ofInstant(i, ZoneOffset.UTC);
             System.out.println(DateTimeFormatter.ISO_INSTANT.format(z));
             output.append("\n<trkpt lon=\"").append(point[0]).append("\" lat=\"")
