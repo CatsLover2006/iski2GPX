@@ -32,23 +32,28 @@ public class Main {
         String[] dataPoints = data.split(" ");
         StringBuilder output = new StringBuilder();
         output.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n")
-                .append("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"byHand\" version=\"1.1\"\n")
+                .append("<gpx xmlns=\"http://www.topografix.com/GPX/1/0\" creator=\"byHand\" version=\"1.0\"\n")
                 .append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n")
-                .append("xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n")
+                .append("xsi:schemaLocation=\"http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd\">\n")
                 .append("<trk>\n<trkseg>\n");
         boolean isInFeet = !object.getBoolean("has_dimension_m");
         for (String dataPoint : dataPoints) {
             // Point format: long, lat, elevation, unix epoch, speed
             String[] point = dataPoint.split(",");
             double elevation = Double.parseDouble(point[2]);
-            if (isInFeet) elevation /= 3.281;
+            double speed = Double.parseDouble(point[4]);
+            if (isInFeet) {
+                elevation /= 3.281; // ft -> m
+                speed *= 1.60934; // mph -> km/h
+            }
+            speed /= 3.6; // km/h -> m/s
             double pointTime = Double.parseDouble(point[3]);
             Instant i = Instant.ofEpochMilli((long) (pointTime * 1000));
             ZonedDateTime z = ZonedDateTime.ofInstant(i, ZoneOffset.UTC);
             System.out.println(DateTimeFormatter.ISO_INSTANT.format(z));
             output.append("\n<trkpt lon=\"").append(point[0]).append("\" lat=\"")
                     .append(point[1]).append("\">\n<ele>").append(elevation)
-                    .append("</ele>\n<time>")
+                    .append("</ele>\n<speed>").append(speed).append("</speed>\n<time>")
                     .append(DateTimeFormatter.ISO_INSTANT.format(z))
                     .append("</time>\n</trkpt>\n");
         }
